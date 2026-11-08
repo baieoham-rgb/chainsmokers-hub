@@ -1,4 +1,4 @@
--- Chainsmokers Hub (Casserus UI Style - GitHub Ready)
+-- Chainsmokers Hub (Casserus UI Style + Galaxy Background)
 task.wait(0.5)
 
 local Players = game:GetService("Players")
@@ -31,11 +31,13 @@ Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(1, 0)
 local stroke1 = Instance.new("UIStroke", MainBtn)
 stroke1.Color = Color3.fromRGB(0, 170, 255)
 
-local MainFrame = Instance.new("Frame")
+local MainFrame = Instance.new("ImageLabel")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 360, 0, 240)
 MainFrame.Position = UDim2.new(0.5, -180, 0.5, -120)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 14, 18)
+MainFrame.Image = "rbxassetid://6023426921" -- 🌌 แบบที่ 2: โทนกาแล็กซี่อวกาศ
+MainFrame.ScaleType = Enum.ScaleType.Slice
 MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
@@ -94,6 +96,7 @@ local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 100, 1, -40)
 Sidebar.Position = UDim2.new(0, 6, 0, 35)
 Sidebar.BackgroundColor3 = Color3.fromRGB(18, 20, 26)
+Sidebar.BackgroundTransparency = 0.3
 Sidebar.Parent = MainFrame
 Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
 
@@ -145,6 +148,7 @@ local function createTabBtn(order, name, targetTab)
     btn.Text = name
     btn.TextColor3 = Color3.fromRGB(180, 180, 180)
     btn.BackgroundColor3 = Color3.fromRGB(24, 28, 36)
+    btn.BackgroundTransparency = 0.3
     btn.TextSize = 11
     btn.Font = Enum.Font.SourceSansBold
     btn.Parent = Sidebar
@@ -153,6 +157,7 @@ local function createTabBtn(order, name, targetTab)
     if order == 1 then
         activeTabBtn = btn
         btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        btn.BackgroundTransparency = 0
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
     
@@ -162,11 +167,13 @@ local function createTabBtn(order, name, targetTab)
         end
         if activeTabBtn then
             activeTabBtn.BackgroundColor3 = Color3.fromRGB(24, 28, 36)
+            activeTabBtn.BackgroundTransparency = 0.3
             activeTabBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
         end
         targetTab.Visible = true
         activeTabBtn = btn
         btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        btn.BackgroundTransparency = 0
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     end)
 end
@@ -179,6 +186,7 @@ local function createToggle(parent, order, text, callback)
     card.Size = UDim2.new(1, -6, 0, 36)
     card.LayoutOrder = order
     card.BackgroundColor3 = Color3.fromRGB(20, 24, 32)
+    card.BackgroundTransparency = 0.3
     card.Parent = parent
     Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
     
