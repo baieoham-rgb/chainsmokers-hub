@@ -1,4 +1,4 @@
--- Chainsmokers Hub (Micro Version + ESP)
+-- Chainsmokers Hub (Micro Version + ESP + Distance)
 task.wait(1)
 
 local Players = game:GetService("Players")
@@ -17,7 +17,7 @@ local success, err = pcall(function()
     SG.ResetOnSpawn = false
 
     local M = Instance.new("Frame", SG)
-    M.Size, M.Position, M.BackgroundColor3 = UDim2.new(0, 260, 0, 200), UDim2.new(0.5, -130, 0.5, -100), Color3.fromRGB(20,20,20)
+    M.Size, M.Position, M.BackgroundColor3 = UDim2.new(0, 260, 0, 240), UDim2.new(0.5, -130, 0.5, -120), Color3.fromRGB(20,20,20)
     M.Visible = false
     Instance.new("UICorner", M).CornerRadius = UDim.new(0, 8)
 
@@ -50,19 +50,49 @@ local success, err = pcall(function()
     mk(125, "บิน (Fly)", function() f = not f return f end)
     mk(165, "มองตัวละคร (ESP)", function() espOn = not espOn return espOn end)
 
-    -- ESP Loop
+    -- ESP & Distance Loop
     S.RenderStepped:Connect(function()
+        local myChar = P.Character
+        local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+        
         for _, plr in pairs(Players:GetPlayers()) do
             if plr ~= P and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = plr.Character.HumanoidRootPart
                 local h = plr.Character:FindFirstChild("Highlight")
+                local bg = plr.Character:FindFirstChild("CS_DistanceTag")
+                
                 if espOn then
                     if not h then
                         h = Instance.new("Highlight", plr.Character)
                         h.FillColor = Color3.fromRGB(255, 0, 0)
                         h.OutlineColor = Color3.fromRGB(255, 255, 255)
                     end
+                    
+                    if not bg and hrp then
+                        local bb = Instance.new("BillboardGui", plr.Character)
+                        bb.Name = "CS_DistanceTag"
+                        bb.Size = UDim2.new(0, 100, 0, 40)
+                        bb.StudsOffset = Vector3.new(0, 3, 0)
+                        bb.AlwaysOnTop = true
+                        
+                        local txtLabel = Instance.new("TextLabel", bb)
+                        txtLabel.Size = UDim2.new(1, 0, 1, 0)
+                        txtLabel.BackgroundTransparency = 1
+                        txtLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        txtLabel.TextStrokeTransparency = 0
+                        txtLabel.TextSize = 14
+                    end
+                    
+                    if bg and myHRP then
+                        local dist = math.floor((hrp.Position - myHRP.Position).Magnitude)
+                        local lbl = bg:FindFirstChildOfClass("TextLabel")
+                        if lbl then
+                            lbl.Text = plr.Name .. "\n[" .. dist .. "m]"
+                        end
+                    end
                 else
                     if h then h:Destroy() end
+                    if bg then bg:Destroy() end
                 end
             end
         end
@@ -84,10 +114,4 @@ local success, err = pcall(function()
             local hrp = c.HumanoidRootPart
             hrp.Velocity = Vector3.new(0, 1, 0)
             hrp.CFrame = hrp.CFrame + (Cam.CFrame.LookVector * 1.2)
-        end
-    end)
-end)
-
-if not success then
-    warn("CS Hub Error: " .. tostring(err))
-end
+        
