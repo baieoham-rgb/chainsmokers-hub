@@ -1,4 +1,4 @@
--- Chainsmokers Hub - Touch Input Fixed Version
+-- Chainsmokers Hub - Touch & Drag Fixed Version
 task.wait(0.5)
 
 local Players = game:GetService("Players")
@@ -19,16 +19,16 @@ ScreenGui.Name = "CS_Hub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- ปุ่มเปิด-ปิดเมนู (ใส่ ZIndex สูงสุดเพื่อให้กดทับทุกอย่างบนมือถือได้)
+-- ปุ่มเปิด-ปิดเมนู (เพิ่มระบบรองรับการกดและลากบนมือถือ)
 local MainBtn = Instance.new("TextButton")
 MainBtn.Name = "CS_Toggle"
-MainBtn.Size = UDim2.new(0, 45, 0, 45)
+MainBtn.Size = UDim2.new(0, 48, 0, 48)
 MainBtn.Position = UDim2.new(0, 20, 0.4, 0)
 MainBtn.Text = "CS"
 MainBtn.TextColor3 = Color3.fromRGB(0, 170, 255)
 MainBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainBtn.TextSize = 18
-MainBtn.ZIndex = 999
+MainBtn.ZIndex = 9999
 MainBtn.Parent = ScreenGui
 Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(1, 0)
 local stroke1 = Instance.new("UIStroke", MainBtn)
@@ -41,7 +41,7 @@ MainFrame.Size = UDim2.new(0, 360, 0, 240)
 MainFrame.Position = UDim2.new(0.5, -180, 0.5, -120)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 18, 25)
 MainFrame.Visible = false
-MainFrame.ZIndex = 100
+MainFrame.ZIndex = 1000
 MainFrame.Parent = ScreenGui
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
@@ -57,15 +57,43 @@ bgGradient.Color = ColorSequence.new({
 })
 bgGradient.Rotation = 45
 
--- ใช้ระบบ Touch / Click เด้งเปิดปิดชัวร์ๆ บนมือถือ
-MainBtn.Activated:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
+-- ระบบกดเปิด-ปิดหน้าต่างแบบปลอดภัยสำหรับมือถือ
+local dragging = false
+local dragInput, dragStart, startPos
+
+MainBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainBtn.Position
+        
+        -- ถ้าเป็นการแตะธรรมดา (ไม่ได้ลาก) ให้สลับเปิด-ปิด UI
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+                if connection then connection:Disconnect() end
+                
+                -- เช็คว่าเป็นการคลิก/แตะแบบไม่ขยับ (เปิด-ปิดเมนู)
+                if (input.Position - dragStart).Magnitude < 5 then
+                    MainFrame.Visible = not MainFrame.Visible
+                end
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+        local delta = input.Position - dragStart
+        MainBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 end)
 
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 35)
 TopBar.BackgroundTransparency = 1
-TopBar.ZIndex = 101
+TopBar.ZIndex = 1001
 TopBar.Parent = MainFrame
 
 local Title = Instance.new("TextLabel")
@@ -77,7 +105,7 @@ Title.TextSize = 14
 Title.Font = Enum.Font.SourceSansBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
-Title.ZIndex = 101
+Title.ZIndex = 1001
 Title.Parent = TopBar
 
 local CloseBtn = Instance.new("TextButton")
@@ -88,7 +116,7 @@ CloseBtn.TextColor3 = Color3.fromRGB(20, 20, 20)
 CloseBtn.TextSize = 10
 CloseBtn.Font = Enum.Font.SourceSansBold
 CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
-CloseBtn.ZIndex = 101
+CloseBtn.ZIndex = 1001
 CloseBtn.Parent = TopBar
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
@@ -104,7 +132,7 @@ MinimizeBtn.TextColor3 = Color3.fromRGB(20, 20, 20)
 MinimizeBtn.TextSize = 12
 MinimizeBtn.Font = Enum.Font.SourceSansBold
 MinimizeBtn.BackgroundColor3 = Color3.fromRGB(255, 185, 45)
-MinimizeBtn.ZIndex = 101
+MinimizeBtn.ZIndex = 1001
 MinimizeBtn.Parent = TopBar
 Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(1, 0)
 
@@ -117,7 +145,7 @@ local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 100, 1, -40)
 Sidebar.Position = UDim2.new(0, 6, 0, 35)
 Sidebar.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
-Sidebar.ZIndex = 101
+Sidebar.ZIndex = 1001
 Sidebar.Parent = MainFrame
 Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
 
@@ -133,7 +161,7 @@ local ContentContainer = Instance.new("Frame")
 ContentContainer.Size = UDim2.new(1, -120, 1, -40)
 ContentContainer.Position = UDim2.new(0, 112, 0, 35)
 ContentContainer.BackgroundTransparency = 1
-ContentContainer.ZIndex = 101
+ContentContainer.ZIndex = 1001
 ContentContainer.Parent = MainFrame
 
 local tabs = {}
@@ -147,7 +175,7 @@ local function createTab(name)
     tabFrame.ScrollBarThickness = 4
     tabFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)
     tabFrame.Visible = false
-    tabFrame.ZIndex = 101
+    tabFrame.ZIndex = 1001
     tabFrame.Parent = ContentContainer
     
     local list = Instance.new("UIListLayout", tabFrame)
@@ -174,7 +202,7 @@ local function createTabBtn(order, name, targetTab)
     btn.BackgroundColor3 = Color3.fromRGB(28, 33, 45)
     btn.TextSize = 11
     btn.Font = Enum.Font.SourceSansBold
-    btn.ZIndex = 102
+    btn.ZIndex = 1002
     btn.Parent = Sidebar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     
@@ -208,7 +236,7 @@ local function createToggle(parent, order, text, callback)
     card.Size = UDim2.new(1, -6, 0, 36)
     card.LayoutOrder = order
     card.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
-    card.ZIndex = 102
+    card.ZIndex = 1002
     card.Parent = parent
     Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
     
@@ -220,14 +248,14 @@ local function createToggle(parent, order, text, callback)
     lbl.TextSize = 11
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.BackgroundTransparency = 1
-    lbl.ZIndex = 102
+    lbl.ZIndex = 1002
     lbl.Parent = card
     
     local switchBg = Instance.new("Frame")
     switchBg.Size = UDim2.new(0, 34, 0, 18)
     switchBg.Position = UDim2.new(1, -40, 0.5, -9)
     switchBg.BackgroundColor3 = Color3.fromRGB(40, 45, 55)
-    switchBg.ZIndex = 102
+    switchBg.ZIndex = 1002
     switchBg.Parent = card
     Instance.new("UICorner", switchBg).CornerRadius = UDim.new(1, 0)
     
@@ -235,7 +263,7 @@ local function createToggle(parent, order, text, callback)
     dot.Size = UDim2.new(0, 14, 0, 14)
     dot.Position = UDim2.new(0, 2, 0.5, -7)
     dot.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
-    dot.ZIndex = 103
+    dot.ZIndex = 1003
     dot.Parent = switchBg
     Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
     
@@ -243,7 +271,7 @@ local function createToggle(parent, order, text, callback)
     btn.Size = UDim2.new(1, 0, 1, 0)
     btn.BackgroundTransparency = 1
     btn.Text = ""
-    btn.ZIndex = 103
+    btn.ZIndex = 1003
     btn.Parent = card
     
     local state = false
@@ -349,7 +377,7 @@ RunService.RenderStepped:Connect(function()
                         txt.TextStrokeTransparency = 0
                         txt.TextSize = 13
                     else
-                        local dist = math.floor((hrp.Position - myHRP.Position).Magnitude)
+                        val dist = math.floor((hrp.Position - myHRP.Position).Magnitude)
                         local txt = distanceTag:FindFirstChild("Text")
                         if txt then
                             txt.Text = "[" .. dist .. "m]"
