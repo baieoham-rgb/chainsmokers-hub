@@ -1,8 +1,9 @@
--- Chainsmokers Hub (Casserus UI Style + Aimbot + FOV Circle)
+-- Chainsmokers Hub (Casserus UI Style + Aimbot + Aim Assist + FOV Circle)
 task.wait(0.5)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 
@@ -252,7 +253,7 @@ local function createToggle(parent, order, text, callback)
     end)
 end
 
-local speedOn, noclipOn, flyOn, aimbotOn, espOn, distOn, boxOn = false, false, false, false, false, false, false
+local speedOn, noclipOn, flyOn, aimbotOn, aimAssistOn, espOn, distOn, boxOn = false, false, false, false, false, false, false, false
 
 createToggle(mainTab, 1, "วิ่งเร็ว (Speed)", function() speedOn = not speedOn return speedOn end)
 createToggle(mainTab, 2, "ทะลุกำแพง (Noclip)", function() noclipOn = not noclipOn return noclipOn end)
@@ -260,8 +261,14 @@ createToggle(mainTab, 3, "บิน (Fly)", function() flyOn = not flyOn return 
 
 createToggle(combatTab, 1, "ล็อกเป้า (Aimbot)", function() 
     aimbotOn = not aimbotOn 
-    FOVCircle.Visible = aimbotOn
+    FOVCircle.Visible = aimbotOn or aimAssistOn
     return aimbotOn 
+end)
+
+createToggle(combatTab, 2, "ช่วยเล็ง (Aim Assist)", function() 
+    aimAssistOn = not aimAssistOn 
+    FOVCircle.Visible = aimbotOn or aimAssistOn
+    return aimAssistOn 
 end)
 
 createToggle(espTab, 1, "มองตัวละคร (ESP)", function() espOn = not espOn return espOn end)
@@ -298,6 +305,13 @@ RunService.RenderStepped:Connect(function()
         local targetHRP = getClosestPlayer()
         if targetHRP then
             Cam.CFrame = CFrame.new(Cam.CFrame.Position, targetHRP.Position)
+        end
+    elseif aimAssistOn then
+        local targetHRP = getClosestPlayer()
+        if targetHRP then
+            -- Aim Assist แบบสมูทค่อยๆ ดึงกล้องตามความหน่วง
+            local goalCFrame = CFrame.new(Cam.CFrame.Position, targetHRP.Position)
+            Cam.CFrame = Cam.CFrame:Lerp(goalCFrame, 0.2)
         end
     end
 
@@ -362,7 +376,7 @@ RunService.RenderStepped:Connect(function()
                         frm.Size = UDim2.new(1, 0, 1, 0)
                         frm.BackgroundTransparency = 1
                         
-                        local stroke = Instance.new("UIStroke", frm)
+                        let stroke = Instance.new("UIStroke", frm)
                         stroke.Color = Color3.fromRGB(0, 255, 255)
                         stroke.Thickness = 1.5
                     end
