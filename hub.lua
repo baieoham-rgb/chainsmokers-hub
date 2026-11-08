@@ -1,4 +1,4 @@
--- Chainsmokers Hub (Casserus UI Style)
+-- Chainsmokers Hub (Casserus UI Style - GitHub Ready)
 task.wait(0.5)
 
 local Players = game:GetService("Players")
@@ -13,13 +13,11 @@ if PlayerGui:FindFirstChild("CS_Hub") then
     PlayerGui.CS_Hub:Destroy()
 end
 
--- Main ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CS_Hub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- ปุ่มวงกลมเปิด/ปิดเมนูหลัก (CS Button)
 local MainBtn = Instance.new("TextButton")
 MainBtn.Name = "CS_Toggle"
 MainBtn.Size = UDim2.new(0, 45, 0, 45)
@@ -33,7 +31,6 @@ Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(1, 0)
 local stroke1 = Instance.new("UIStroke", MainBtn)
 stroke1.Color = Color3.fromRGB(0, 170, 255)
 
--- Main Frame (Casserus Style)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 360, 0, 240)
@@ -47,10 +44,295 @@ MainBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
--- Top Bar
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 35)
 TopBar.BackgroundTransparency = 1
 TopBar.Parent = MainFrame
 
-local Title = Instance.new("Text
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0, 200, 1, 0)
+Title.Position = UDim2.new(0, 12, 0, 0)
+Title.Text = "Chainsmokers Hub"
+Title.TextColor3 = Color3.fromRGB(0, 170, 255)
+Title.TextSize = 14
+Title.Font = Enum.Font.SourceSansBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.BackgroundTransparency = 1
+Title.Parent = TopBar
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 16, 0, 16)
+CloseBtn.Position = UDim2.new(1, -24, 0.5, -8)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(20, 20, 20)
+CloseBtn.TextSize = 10
+CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+CloseBtn.Parent = TopBar
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+end)
+
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Size = UDim2.new(0, 16, 0, 16)
+MinimizeBtn.Position = UDim2.new(1, -46, 0.5, -8)
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(20, 20, 20)
+MinimizeBtn.TextSize = 12
+MinimizeBtn.Font = Enum.Font.SourceSansBold
+MinimizeBtn.BackgroundColor3 = Color3.fromRGB(255, 185, 45)
+MinimizeBtn.Parent = TopBar
+Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(1, 0)
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+end)
+
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 100, 1, -40)
+Sidebar.Position = UDim2.new(0, 6, 0, 35)
+Sidebar.BackgroundColor3 = Color3.fromRGB(18, 20, 26)
+Sidebar.Parent = MainFrame
+Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
+
+local SideList = Instance.new("UIListLayout", Sidebar)
+SideList.SortOrder = Enum.SortOrder.LayoutOrder
+SideList.Padding = UDim.new(0, 6)
+SideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local SidePadding = Instance.new("UIPadding", Sidebar)
+SidePadding.PaddingTop = UDim.new(0, 8)
+
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Size = UDim2.new(1, -120, 1, -40)
+ContentContainer.Position = UDim2.new(0, 112, 0, 35)
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.Parent = MainFrame
+
+local tabs = {}
+
+local function createTab(name)
+    local tabFrame = Instance.new("ScrollingFrame")
+    tabFrame.Size = UDim2.new(1, 0, 1, 0)
+    tabFrame.BackgroundTransparency = 1
+    tabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    tabFrame.ScrollBarThickness = 4
+    tabFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)
+    tabFrame.Visible = false
+    tabFrame.Parent = ContentContainer
+    
+    local list = Instance.new("UIListLayout", tabFrame)
+    list.SortOrder = Enum.SortOrder.LayoutOrder
+    list.Padding = UDim.new(0, 6)
+    
+    tabs[name] = tabFrame
+    return tabFrame
+end
+
+local mainTab = createTab("Main")
+local espTab = createTab("ESP")
+mainTab.Visible = true
+
+local activeTabBtn = nil
+
+local function createTabBtn(order, name, targetTab)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -12, 0, 28)
+    btn.LayoutOrder = order
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(180, 180, 180)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 28, 36)
+    btn.TextSize = 11
+    btn.Font = Enum.Font.SourceSansBold
+    btn.Parent = Sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    
+    if order == 1 then
+        activeTabBtn = btn
+        btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+    
+    btn.MouseButton1Click:Connect(function()
+        for _, tab in pairs(tabs) do
+            tab.Visible = false
+        end
+        if activeTabBtn then
+            activeTabBtn.BackgroundColor3 = Color3.fromRGB(24, 28, 36)
+            activeTabBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+        end
+        targetTab.Visible = true
+        activeTabBtn = btn
+        btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+end
+
+createTabBtn(1, "Main", mainTab)
+createTabBtn(2, "ESP", espTab)
+
+local function createToggle(parent, order, text, callback)
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(1, -6, 0, 36)
+    card.LayoutOrder = order
+    card.BackgroundColor3 = Color3.fromRGB(20, 24, 32)
+    card.Parent = parent
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+    
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -50, 1, 0)
+    lbl.Position = UDim2.new(0, 10, 0, 0)
+    lbl.Text = text
+    lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.BackgroundTransparency = 1
+    lbl.Parent = card
+    
+    local switchBg = Instance.new("Frame")
+    switchBg.Size = UDim2.new(0, 34, 0, 18)
+    switchBg.Position = UDim2.new(1, -40, 0.5, -9)
+    switchBg.BackgroundColor3 = Color3.fromRGB(40, 45, 55)
+    switchBg.Parent = card
+    Instance.new("UICorner", switchBg).CornerRadius = UDim.new(1, 0)
+    
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(0, 14, 0, 14)
+    dot.Position = UDim2.new(0, 2, 0.5, -7)
+    dot.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
+    dot.Parent = switchBg
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+    
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 1, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text = ""
+    btn.Parent = card
+    
+    local state = false
+    btn.MouseButton1Click:Connect(function()
+        state = callback()
+        if state then
+            switchBg.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+            dot.Position = UDim2.new(1, -16, 0.5, -7)
+            dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            switchBg.BackgroundColor3 = Color3.fromRGB(40, 45, 55)
+            dot.Position = UDim2.new(0, 2, 0.5, -7)
+            dot.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
+        end
+    end)
+end
+
+local speedOn, noclipOn, flyOn, espOn, distOn, boxOn = false, false, false, false, false, false
+
+createToggle(mainTab, 1, "วิ่งเร็ว (Speed)", function() speedOn = not speedOn return speedOn end)
+createToggle(mainTab, 2, "ทะลุกำแพง (Noclip)", function() noclipOn = not noclipOn return noclipOn end)
+createToggle(mainTab, 3, "บิน (Fly)", function() flyOn = not flyOn return flyOn end)
+
+createToggle(espTab, 1, "มองตัวละคร (ESP)", function() espOn = not espOn return espOn end)
+createToggle(espTab, 2, "ระยะตัวละคร (Distance)", function() distOn = not distOn return distOn end)
+createToggle(espTab, 3, "กล่อง ESP (Box)", function() boxOn = not boxOn return boxOn end)
+
+RunService.RenderStepped:Connect(function()
+    local myChar = LocalPlayer.Character
+    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            local char = plr.Character
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            
+            if hrp then
+                local highlight = char:FindFirstChild("CS_Highlight")
+                if espOn then
+                    if not highlight then
+                        highlight = Instance.new("Highlight", char)
+                        highlight.Name = "CS_Highlight"
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    end
+                else
+                    if highlight then highlight:Destroy() end
+                end
+
+                local distanceTag = char:FindFirstChild("CS_DistanceTag")
+                if distOn and myHRP then
+                    if not distanceTag then
+                        local bb = Instance.new("BillboardGui", char)
+                        bb.Name = "CS_DistanceTag"
+                        bb.Size = UDim2.new(0, 100, 0, 40)
+                        bb.StudsOffset = Vector3.new(0, 3.5, 0)
+                        bb.AlwaysOnTop = true
+                        
+                        local txt = Instance.new("TextLabel", bb)
+                        txt.Name = "Text"
+                        txt.Size = UDim2.new(1, 0, 1, 0)
+                        txt.BackgroundTransparency = 1
+                        txt.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        txt.TextStrokeTransparency = 0
+                        txt.TextSize = 13
+                    else
+                        local dist = math.floor((hrp.Position - myHRP.Position).Magnitude)
+                        local txt = distanceTag:FindFirstChild("Text")
+                        if txt then
+                            txt.Text = "[" .. dist .. "m]"
+                        end
+                    end
+                else
+                    if distanceTag then distanceTag:Destroy() end
+                end
+
+                local boxTag = char:FindFirstChild("CS_BoxTag")
+                if boxOn then
+                    if not boxTag then
+                        local bb = Instance.new("BillboardGui", char)
+                        bb.Name = "CS_BoxTag"
+                        bb.Size = UDim2.new(4, 0, 5, 0)
+                        bb.StudsOffset = Vector3.new(0, 0.5, 0)
+                        bb.AlwaysOnTop = true
+                        
+                        local frm = Instance.new("Frame", bb)
+                        frm.Size = UDim2.new(1, 0, 1, 0)
+                        frm.BackgroundTransparency = 1
+                        
+                        local stroke = Instance.new("UIStroke", frm)
+                        stroke.Color = Color3.fromRGB(0, 255, 255)
+                        stroke.Thickness = 1.5
+                    end
+                else
+                    if boxTag then boxTag:Destroy() end
+                end
+            end
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    local c = LocalPlayer.Character
+    if not c then return end
+    
+    local humanoid = c:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = speedOn and 50 or 16
+    end
+    
+    if noclipOn then
+        for _, v in ipairs(c:GetDescendants()) do
+            if v:IsA("BasePart") and v.CanCollide then
+                v.CanCollide = false
+            end
+        end
+    end
+    
+    if flyOn then
+        local hrp = c:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.Velocity = Vector3.new(0, 1, 0)
+            hrp.CFrame = hrp.CFrame + (Cam.CFrame.LookVector * 1.2)
+        end
+    end
+end)
