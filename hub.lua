@@ -1,7 +1,9 @@
--- Chainsmokers Hub (Micro Version)
+-- Chainsmokers Hub (Micro Version + ESP & Aimbot)
 local P = game:GetService("Players").LocalPlayer
 local S = game:GetService("RunService")
+local U = game:GetService("UserInputService")
 local G = P:WaitForChild("PlayerGui")
+local Cam = workspace.CurrentCamera
 
 if G:FindFirstChild("CS_Hub") then G.CS_Hub:Destroy() end
 
@@ -9,7 +11,8 @@ local SG = Instance.new("ScreenGui", G)
 SG.Name = "CS_Hub"
 
 local M = Instance.new("Frame", SG)
-M.Size, M.Position, M.BackgroundColor3 = UDim2.new(0, 260, 0, 200), UDim2.new(0.5, -130, 0.5, -100), Color3.fromRGB(20,20,20)
+M.Size, M.Position, M.BackgroundColor3 = UDim2.new(0, 260, 0, 240), UDim2.new(0.5, -130, 0.5, -120), Color3.fromRGB(20,20,20)
+M.Visible = false
 Instance.new("UICorner", M).CornerRadius = UDim.new(0, 8)
 
 local T = Instance.new("TextLabel", M)
@@ -23,38 +26,13 @@ Instance.new("UIStroke", Btn).Color = Color3.fromRGB(0,170,255)
 
 Btn.MouseButton1Click:Connect(function() M.Visible = not M.Visible end)
 
-local sp, nc, f = false, false, false
+local sp, nc, f, espOn, aimOn = false, false, false, false, false
 
 local function mk(y, txt, cb)
     local b = Instance.new("TextButton", M)
-    b.Size, b.Position, b.Text, b.TextColor3, b.BackgroundColor3, b.TextSize = UDim2.new(1,-20,0,38), UDim2.new(0,10,0,y), txt..": OFF", Color3.new(1,1,1), Color3.fromRGB(45,45,45), 13
+    b.Size, b.Position, b.Text, b.TextColor3, b.BackgroundColor3, b.TextSize = UDim2.new(1,-20,0,35), UDim2.new(0,10,0,y), txt..": OFF", Color3.new(1,1,1), Color3.fromRGB(45,45,45), 12
     Instance.new("UICorner", b).CornerRadius = UDim.new(0,6)
     b.MouseButton1Click:Connect(function()
         local st = cb()
         b.Text = txt..(st and ": ON" or ": OFF")
-        b.BackgroundColor3 = st and Color3.fromRGB(0,180,90) or Color3.fromRGB(45,45,45)
-    end)
-end
-
-mk(45, "วิ่งเร็ว (Speed)", function() sp = not sp return sp end)
-mk(90, "เดินทะลุกำแพง (Noclip)", function() nc = not nc return nc end)
-mk(135, "บิน (Fly)", function() f = not f return f end)
-
-S.RenderStepped:Connect(function()
-    local c = P.Character
-    if not c then return end
-    if c:FindFirstChild("Humanoid") then
-        c.Humanoid.WalkSpeed = sp and 50 or 16
-    end
-    if nc then
-        for _, v in pairs(c:GetDescendants()) do
-            if v:IsA("BasePart") and v.CanCollide then v.CanCollide = false end
-        end
-    end
-    if f and c:FindFirstChild("HumanoidRootPart") then
-        local hrp = c.HumanoidRootPart
-        local cam = workspace.CurrentCamera
-        hrp.Velocity = Vector3.new(0, 1, 0)
-        hrp.CFrame = hrp.CFrame + (cam.CFrame.LookVector * 1.2)
-    end
-end)
+        b.BackgroundColor3 = st and Color3.fromRGB(0,180,90) or Color
