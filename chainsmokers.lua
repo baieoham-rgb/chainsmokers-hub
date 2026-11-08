@@ -1,9 +1,8 @@
--- Chainsmokers Hub (Casserus UI Style + Aimbot + Aim Assist + FOV Circle)
+-- Chainsmokers Hub (Casserus UI Style - Fixed Mobile Execution)
 task.wait(0.5)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 
@@ -18,16 +17,6 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CS_Hub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
-
--- สร้างวงกลม FOV (ขนาด 60) ตรงกลางจอ
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Visible = false
-FOVCircle.Radius = 60
-FOVCircle.Color = Color3.fromRGB(0, 170, 255)
-FOVCircle.Thickness = 1.5
-FOVCircle.Filled = false
-FOVCircle.Transparency = 0.7
-FOVCircle.Position = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
 
 local MainBtn = Instance.new("TextButton")
 MainBtn.Name = "CS_Toggle"
@@ -96,7 +85,6 @@ Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
-    FOVCircle:Remove()
 end)
 
 local MinimizeBtn = Instance.new("TextButton")
@@ -259,17 +247,8 @@ createToggle(mainTab, 1, "วิ่งเร็ว (Speed)", function() speedOn 
 createToggle(mainTab, 2, "ทะลุกำแพง (Noclip)", function() noclipOn = not noclipOn return noclipOn end)
 createToggle(mainTab, 3, "บิน (Fly)", function() flyOn = not flyOn return flyOn end)
 
-createToggle(combatTab, 1, "ล็อกเป้า (Aimbot)", function() 
-    aimbotOn = not aimbotOn 
-    FOVCircle.Visible = aimbotOn or aimAssistOn
-    return aimbotOn 
-end)
-
-createToggle(combatTab, 2, "ช่วยเล็ง (Aim Assist)", function() 
-    aimAssistOn = not aimAssistOn 
-    FOVCircle.Visible = aimbotOn or aimAssistOn
-    return aimAssistOn 
-end)
+createToggle(combatTab, 1, "ล็อกเป้า (Aimbot)", function() aimbotOn = not aimbotOn return aimbotOn end)
+createToggle(combatTab, 2, "ช่วยเล็ง (Aim Assist)", function() aimAssistOn = not aimAssistOn return aimAssistOn end)
 
 createToggle(espTab, 1, "มองตัวละคร (ESP)", function() espOn = not espOn return espOn end)
 createToggle(espTab, 2, "ระยะตัวละคร (Distance)", function() distOn = not distOn return distOn end)
@@ -277,7 +256,7 @@ createToggle(espTab, 3, "กล่อง ESP (Box)", function() boxOn = not boxO
 
 local function getClosestPlayer()
     local target = nil
-    local shortestDist = 60 -- รัศมี FOV
+    local shortestDist = 150 -- รัศมีการล็อกเป้า
     
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and plr.Character then
@@ -299,8 +278,6 @@ local function getClosestPlayer()
 end
 
 RunService.RenderStepped:Connect(function()
-    FOVCircle.Position = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
-
     if aimbotOn then
         local targetHRP = getClosestPlayer()
         if targetHRP then
@@ -309,7 +286,6 @@ RunService.RenderStepped:Connect(function()
     elseif aimAssistOn then
         local targetHRP = getClosestPlayer()
         if targetHRP then
-            -- Aim Assist แบบสมูทค่อยๆ ดึงกล้องตามความหน่วง
             local goalCFrame = CFrame.new(Cam.CFrame.Position, targetHRP.Position)
             Cam.CFrame = Cam.CFrame:Lerp(goalCFrame, 0.2)
         end
@@ -376,7 +352,7 @@ RunService.RenderStepped:Connect(function()
                         frm.Size = UDim2.new(1, 0, 1, 0)
                         frm.BackgroundTransparency = 1
                         
-                        let stroke = Instance.new("UIStroke", frm)
+                        local stroke = Instance.new("UIStroke", frm)
                         stroke.Color = Color3.fromRGB(0, 255, 255)
                         stroke.Thickness = 1.5
                     end
