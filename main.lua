@@ -1,8 +1,9 @@
--- Chainsmokers Hub (Casserus UI Style + Gradient Background)
+-- Chainsmokers Hub (Casserus UI Style + Aimbot Added)
 task.wait(0.5)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 
@@ -40,13 +41,11 @@ MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
--- เพิ่มเส้นขอบเรืองแสงนีออนให้ UI ดูโดดเด่น
 local mainStroke = Instance.new("UIStroke", MainFrame)
 mainStroke.Color = Color3.fromRGB(0, 170, 255)
 mainStroke.Transparency = 0.5
 mainStroke.Thickness = 1.5
 
--- เพิ่ม Gradient ไล่สีพื้นหลังให้ดูมีมิติ
 local bgGradient = Instance.new("UIGradient", MainFrame)
 bgGradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 24, 33)),
@@ -147,6 +146,7 @@ local function createTab(name)
 end
 
 local mainTab = createTab("Main")
+local combatTab = createTab("Combat")
 local espTab = createTab("ESP")
 mainTab.Visible = true
 
@@ -186,7 +186,8 @@ local function createTabBtn(order, name, targetTab)
 end
 
 createTabBtn(1, "Main", mainTab)
-createTabBtn(2, "ESP", espTab)
+createTabBtn(2, "Combat", combatTab)
+createTabBtn(3, "ESP", espTab)
 
 local function createToggle(parent, order, text, callback)
     local card = Instance.new("Frame")
@@ -241,17 +242,48 @@ local function createToggle(parent, order, text, callback)
     end)
 end
 
-local speedOn, noclipOn, flyOn, espOn, distOn, boxOn = false, false, false, false, false, false
+local speedOn, noclipOn, flyOn, aimbotOn, espOn, distOn, boxOn = false, false, false, false, false, false, false
 
 createToggle(mainTab, 1, "วิ่งเร็ว (Speed)", function() speedOn = not speedOn return speedOn end)
 createToggle(mainTab, 2, "ทะลุกำแพง (Noclip)", function() noclipOn = not noclipOn return noclipOn end)
 createToggle(mainTab, 3, "บิน (Fly)", function() flyOn = not flyOn return flyOn end)
 
+createToggle(combatTab, 1, "ล็อกเป้า (Aimbot)", function() aimbotOn = not aimbotOn return aimbotOn end)
+
 createToggle(espTab, 1, "มองตัวละคร (ESP)", function() espOn = not espOn return espOn end)
 createToggle(espTab, 2, "ระยะตัวละคร (Distance)", function() distOn = not distOn return distOn end)
 createToggle(espTab, 3, "กล่อง ESP (Box)", function() boxOn = not boxOn return boxOn end)
 
+-- ฟังก์ชันหาตัวละครที่ใกล้ที่สุดสำหรับ Aimbot
+local function getClosestPlayer()
+    local target = nil
+    local shortestDist = math.huge
+    
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            if hrp and hum and hum.Health > 0 then
+                local pos, onScreen = Cam:WorldToViewportPoint(hrp.Position)
+                local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X/2, Cam.ViewportSize.Y/2)).Magnitude
+                if dist < shortestDist then
+                    shortestDist = dist
+                    target = hrp
+                end
+            end
+        end
+    end
+    return target
+end
+
 RunService.RenderStepped:Connect(function()
+    if aimbotOn then
+        local targetHRP = getClosestPlayer()
+        if targetHRP then
+            Cam.CFrame = CFrame.new(Cam.CFrame.Position, targetHRP.Position)
+        end
+    end
+
     local myChar = LocalPlayer.Character
     local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
     
