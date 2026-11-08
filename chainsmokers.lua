@@ -1,5 +1,7 @@
--- Chainsmokers Hub - Full Tab Fixed Version
-task.wait(0.5)
+-- Chainsmokers Hub - Direct Run Full Version
+if game:GetService("CoreGui"):FindFirstChild("CS_Hub") then
+    game:GetService("CoreGui").CS_Hub:Destroy()
+end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -7,21 +9,12 @@ local UserInputService = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 5)
-if not PlayerGui then return end
-
-if PlayerGui:FindFirstChild("CS_Hub") then
-    PlayerGui.CS_Hub:Destroy()
-end
-
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CS_Hub"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = PlayerGui
+ScreenGui.Parent = game:GetService("CoreGui")
 
--- ปุ่มเปิด-ปิดเมนู
 local MainBtn = Instance.new("TextButton", ScreenGui)
-MainBtn.Name = "CS_Toggle"
 MainBtn.Size = UDim2.new(0, 48, 0, 48)
 MainBtn.Position = UDim2.new(0, 20, 0.4, 0)
 MainBtn.Text = "CS"
@@ -33,9 +26,7 @@ Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(1, 0)
 local stroke1 = Instance.new("UIStroke", MainBtn)
 stroke1.Color = Color3.fromRGB(0, 170, 255)
 
--- หน้าต่างหลัก
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 360, 0, 240)
 MainFrame.Position = UDim2.new(0.5, -180, 0.5, -120)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 18, 25)
@@ -45,28 +36,19 @@ Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
 local mainStroke = Instance.new("UIStroke", MainFrame)
 mainStroke.Color = Color3.fromRGB(0, 170, 255)
-mainStroke.Transparency = 0.5
 mainStroke.Thickness = 1.5
 
-local bgGradient = Instance.new("UIGradient", MainFrame)
-bgGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 24, 33)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 12, 17))
-})
-bgGradient.Rotation = 45
-
--- ระบบลากและกดปุ่ม
 local dragging, dragStart, startPos = false, nil, nil
 MainBtn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
         startPos = MainBtn.Position
-        local connection
-        connection = input.Changed:Connect(function()
+        local conn
+        conn = input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
-                if connection then connection:Disconnect() end
+                if conn then conn:Disconnect() end
                 if (input.Position - dragStart).Magnitude < 5 then
                     MainFrame.Visible = not MainFrame.Visible
                 end
@@ -82,7 +64,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Top Bar
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 35)
 TopBar.BackgroundTransparency = 1
@@ -91,11 +72,10 @@ TopBar.ZIndex = 1001
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 200, 1, 0)
 Title.Position = UDim2.new(0, 12, 0, 0)
-Title.Text = "Chainsmokers Hub (Pro)"
+Title.Text = "Chainsmokers Hub"
 Title.TextColor3 = Color3.fromRGB(0, 170, 255)
 Title.TextSize = 14
 Title.Font = Enum.Font.SourceSansBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
 Title.ZIndex = 1001
 
@@ -106,15 +86,10 @@ CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 75, 75)
 CloseBtn.TextSize = 10
-CloseBtn.Font = Enum.Font.SourceSansBold
 CloseBtn.ZIndex = 1001
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
+CloseBtn.Activated:Connect(function() MainFrame.Visible = false end)
 
-CloseBtn.Activated:Connect(function()
-    MainFrame.Visible = false
-end)
-
--- Sidebar (แถบเลือกหมวดหมู่)
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Size = UDim2.new(0, 100, 1, -45)
 Sidebar.Position = UDim2.new(0, 6, 0, 38)
@@ -126,11 +101,8 @@ local SideList = Instance.new("UIListLayout", Sidebar)
 SideList.SortOrder = Enum.SortOrder.LayoutOrder
 SideList.Padding = UDim.new(0, 6)
 SideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 8)
 
-local SidePadding = Instance.new("UIPadding", Sidebar)
-SidePadding.PaddingTop = UDim.new(0, 8)
-
--- Content Container
 local ContentContainer = Instance.new("Frame", MainFrame)
 ContentContainer.Size = UDim2.new(1, -120, 1, -45)
 ContentContainer.Position = UDim2.new(0, 112, 0, 38)
@@ -145,14 +117,11 @@ local function createTab(name)
     tabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
     tabFrame.ScrollBarThickness = 3
-    tabFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)
     tabFrame.Visible = false
     tabFrame.ZIndex = 1001
-    
     local list = Instance.new("UIListLayout", tabFrame)
     list.SortOrder = Enum.SortOrder.LayoutOrder
     list.Padding = UDim.new(0, 6)
-    
     tabs[name] = tabFrame
     return tabFrame
 end
@@ -174,17 +143,13 @@ local function createTabBtn(order, name, targetTab)
     btn.Font = Enum.Font.SourceSansBold
     btn.ZIndex = 1002
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    
     if order == 1 then
         activeTabBtn = btn
         btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
-    
     btn.Activated:Connect(function()
-        for _, tab in pairs(tabs) do
-            tab.Visible = false
-        end
+        for _, tab in pairs(tabs) do tab.Visible = false end
         if activeTabBtn then
             activeTabBtn.BackgroundColor3 = Color3.fromRGB(28, 33, 45)
             activeTabBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
@@ -253,7 +218,6 @@ local function createToggle(parent, order, text, callback)
     end)
 end
 
--- สร้างปุ่มฟังก์ชันแต่ละหมวด
 local speedOn, noclipOn, flyOn, aimbotOn, aimAssistOn, espOn, distOn, boxOn = false, false, false, false, false, false, false, false
 
 createToggle(mainTab, 1, "วิ่งเร็ว (Speed)", function() speedOn = not speedOn return speedOn end)
@@ -267,7 +231,6 @@ createToggle(espTab, 1, "มองตัวละคร (ESP)", function() espOn
 createToggle(espTab, 2, "ระยะตัวละคร (Distance)", function() distOn = not distOn return distOn end)
 createToggle(espTab, 3, "กล่อง ESP (Box)", function() boxOn = not boxOn return boxOn end)
 
--- ฟังก์ชันหาเป้าหมายใกล้สุด
 local function getClosestPlayer()
     local target, shortestDist = nil, 150
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -278,10 +241,7 @@ local function getClosestPlayer()
                 local pos, onScreen = Cam:WorldToViewportPoint(hrp.Position)
                 if onScreen then
                     local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X/2, Cam.ViewportSize.Y/2)).Magnitude
-                    if dist < shortestDist then
-                        shortestDist = dist
-                        target = hrp
-                    end
+                    if dist < shortestDist then shortestDist = dist; target = hrp end
                 end
             end
         end
@@ -289,44 +249,33 @@ local function getClosestPlayer()
     return target
 end
 
--- ลูปการทำงานระบบ
 RunService.RenderStepped:Connect(function()
     if aimbotOn then
-        local targetHRP = getClosestPlayer()
-        if targetHRP then Cam.CFrame = CFrame.new(Cam.CFrame.Position, targetHRP.Position) end
+        local t = getClosestPlayer()
+        if t then Cam.CFrame = CFrame.new(Cam.CFrame.Position, t.Position) end
     elseif aimAssistOn then
-        local targetHRP = getClosestPlayer()
-        if targetHRP then
-            local goalCFrame = CFrame.new(Cam.CFrame.Position, targetHRP.Position)
-            Cam.CFrame = Cam.CFrame:Lerp(goalCFrame, 0.2)
-        end
+        local t = getClosestPlayer()
+        if t then Cam.CFrame = Cam.CFrame:Lerp(CFrame.new(Cam.CFrame.Position, t.Position), 0.2) end
     end
 
-    local myChar = LocalPlayer.Character
-    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
-    
+    local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and plr.Character then
             local char = plr.Character
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                -- ESP Highlight
-                local highlight = char:FindFirstChild("CS_Highlight")
+                local hl = char:FindFirstChild("CS_Highlight")
                 if espOn then
-                    if not highlight then
-                        highlight = Instance.new("Highlight", char)
-                        highlight.Name = "CS_Highlight"
-                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    if not hl then
+                        hl = Instance.new("Highlight", char)
+                        hl.Name = "CS_Highlight"
+                        hl.FillColor = Color3.fromRGB(255, 0, 0)
                     end
-                else
-                    if highlight then highlight:Destroy() end
-                end
+                else if hl then hl:Destroy() end end
 
-                -- ESP Distance
-                local distanceTag = char:FindFirstChild("CS_DistanceTag")
+                local dt = char:FindFirstChild("CS_DistanceTag")
                 if distOn and myHRP then
-                    if not distanceTag then
+                    if not dt then
                         local bb = Instance.new("BillboardGui", char)
                         bb.Name = "CS_DistanceTag"
                         bb.Size = UDim2.new(0, 100, 0, 40)
@@ -337,21 +286,17 @@ RunService.RenderStepped:Connect(function()
                         txt.Size = UDim2.new(1, 0, 1, 0)
                         txt.BackgroundTransparency = 1
                         txt.TextColor3 = Color3.fromRGB(255, 255, 255)
-                        txt.TextStrokeTransparency = 0
                         txt.TextSize = 12
                     else
-                        local dist = math.floor((hrp.Position - myHRP.Position).Magnitude)
-                        local txt = distanceTag:FindFirstChild("Text")
-                        if txt then txt.Text = "[" .. dist .. "m]" end
+                        local d = math.floor((hrp.Position - myHRP.Position).Magnitude)
+                        local txt = dt:FindFirstChild("Text")
+                        if txt then txt.Text = "[" .. d .. "m]" end
                     end
-                else
-                    if distanceTag then distanceTag:Destroy() end
-                end
+                else if dt then dt:Destroy() end end
 
-                -- ESP Box
-                local boxTag = char:FindFirstChild("CS_BoxTag")
+                local bt = char:FindFirstChild("CS_BoxTag")
                 if boxOn then
-                    if not boxTag then
+                    if not bt then
                         local bb = Instance.new("BillboardGui", char)
                         bb.Name = "CS_BoxTag"
                         bb.Size = UDim2.new(4, 0, 5, 0)
@@ -360,13 +305,10 @@ RunService.RenderStepped:Connect(function()
                         local frm = Instance.new("Frame", bb)
                         frm.Size = UDim2.new(1, 0, 1, 0)
                         frm.BackgroundTransparency = 1
-                        local stroke = Instance.new("UIStroke", frm)
-                        stroke.Color = Color3.fromRGB(0, 255, 255)
-                        stroke.Thickness = 1.5
+                        local st = Instance.new("UIStroke", frm)
+                        st.Color = Color3.fromRGB(0, 255, 255)
                     end
-                else
-                    if boxTag then boxTag:Destroy() end
-                end
+                else if bt then bt:Destroy() end end
             end
         end
     end
@@ -375,8 +317,8 @@ end)
 RunService.RenderStepped:Connect(function()
     local c = LocalPlayer.Character
     if not c then return end
-    local humanoid = c:FindFirstChildOfClass("Humanoid")
-    if humanoid then humanoid.WalkSpeed = speedOn and 50 or 16 end
+    local hum = c:FindFirstChildOfClass("Humanoid")
+    if hum then hum.WalkSpeed = speedOn and 50 or 16 end
     if noclipOn then
         for _, v in ipairs(c:GetDescendants()) do
             if v:IsA("BasePart") and v.CanCollide then v.CanCollide = false end
