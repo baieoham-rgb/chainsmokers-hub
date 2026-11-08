@@ -1,4 +1,4 @@
--- Chainsmokers Hub - Full UI Version
+-- Chainsmokers Hub - Mobile Touch Fixed Version
 task.wait(0.5)
 
 local Players = game:GetService("Players")
@@ -38,7 +38,7 @@ MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 360, 0, 240)
 MainFrame.Position = UDim2.new(0.5, -180, 0.5, -120)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 18, 25)
-MainFrame.Visible = false -- เริ่มต้นซ่อนไว้
+MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
@@ -54,8 +54,8 @@ bgGradient.Color = ColorSequence.new({
 })
 bgGradient.Rotation = 45
 
--- กดปุ่ม CS เพื่อเปิด-ปิดหน้าต่าง
-MainBtn.MouseButton1Click:Connect(function()
+-- ใช้ Activated แทนเพื่อให้กดบนมือถือติดแน่นอน
+MainBtn.Activated:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
@@ -86,7 +86,7 @@ CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
 CloseBtn.Parent = TopBar
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
-CloseBtn.MouseButton1Click:Connect(function()
+CloseBtn.Activated:Connect(function()
     MainFrame.Visible = false
 end)
 
@@ -101,7 +101,7 @@ MinimizeBtn.BackgroundColor3 = Color3.fromRGB(255, 185, 45)
 MinimizeBtn.Parent = TopBar
 Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(1, 0)
 
-MinimizeBtn.MouseButton1Click:Connect(function()
+MinimizeBtn.Activated:Connect(function()
     MainFrame.Visible = false
 end)
 
@@ -173,7 +173,7 @@ local function createTabBtn(order, name, targetTab)
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
     
-    btn.MouseButton1Click:Connect(function()
+    btn.Activated:Connect(function()
         for _, tab in pairs(tabs) do
             tab.Visible = false
         end
@@ -231,7 +231,7 @@ local function createToggle(parent, order, text, callback)
     btn.Parent = card
     
     local state = false
-    btn.MouseButton1Click:Connect(function()
+    btn.Activated:Connect(function()
         state = callback()
         if state then
             switchBg.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
@@ -369,6 +369,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 RunService.RenderStepped:Connect(function()
+    click = nil
     local c = LocalPlayer.Character
     if not c then return end
     
