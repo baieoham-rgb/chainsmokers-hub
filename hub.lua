@@ -1,5 +1,5 @@
--- Chainsmokers Hub (Safe Micro Version)
-task.wait(1) -- หน่วงเวลาให้เกมโหลดเสร็จก่อนรัน
+-- Chainsmokers Hub (Micro Version + ESP)
+task.wait(1)
 
 local Players = game:GetService("Players")
 local P = Players.LocalPlayer or Players.PlayerAdded:Wait()
@@ -17,7 +17,7 @@ local success, err = pcall(function()
     SG.ResetOnSpawn = false
 
     local M = Instance.new("Frame", SG)
-    M.Size, M.Position, M.BackgroundColor3 = UDim2.new(0, 260, 0, 240), UDim2.new(0.5, -130, 0.5, -120), Color3.fromRGB(20,20,20)
+    M.Size, M.Position, M.BackgroundColor3 = UDim2.new(0, 260, 0, 200), UDim2.new(0.5, -130, 0.5, -100), Color3.fromRGB(20,20,20)
     M.Visible = false
     Instance.new("UICorner", M).CornerRadius = UDim.new(0, 8)
 
@@ -32,7 +32,7 @@ local success, err = pcall(function()
 
     Btn.MouseButton1Click:Connect(function() M.Visible = not M.Visible end)
 
-    local sp, nc, f, espOn, aimOn = false, false, false, false, false
+    local sp, nc, f, espOn = false, false, false, false
 
     local function mk(y, txt, cb)
         local b = Instance.new("TextButton", M)
@@ -49,8 +49,8 @@ local success, err = pcall(function()
     mk(85, "ทะลุกำแพง (Noclip)", function() nc = not nc return nc end)
     mk(125, "บิน (Fly)", function() f = not f return f end)
     mk(165, "มองตัวละคร (ESP)", function() espOn = not espOn return espOn end)
-    mk(205, "ล็อกเป้า (Aimbot)", function() aimOn = not aimOn return aimOn end)
 
+    -- ESP Loop
     S.RenderStepped:Connect(function()
         for _, plr in pairs(Players:GetPlayers()) do
             if plr ~= P and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
@@ -68,6 +68,7 @@ local success, err = pcall(function()
         end
     end)
 
+    -- Movement Loop
     S.RenderStepped:Connect(function()
         local c = P.Character
         if not c then return end
@@ -83,25 +84,6 @@ local success, err = pcall(function()
             local hrp = c.HumanoidRootPart
             hrp.Velocity = Vector3.new(0, 1, 0)
             hrp.CFrame = hrp.CFrame + (Cam.CFrame.LookVector * 1.2)
-        end
-        if aimOn then
-            local closest, dist = nil, math.huge
-            for _, plr in pairs(Players:GetPlayers()) do
-                if plr ~= P and plr.Character and plr.Character:FindFirstChild("Head") then
-                    local head = plr.Character.Head
-                    local pos, onScreen = Cam:WorldToViewportPoint(head.Position)
-                    if onScreen then
-                        local mag = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X/2, Cam.ViewportSize.Y/2)).Magnitude
-                        if mag < dist then
-                            dist = mag
-                            closest = head
-                        end
-                    end
-                end
-            end
-            if closest then
-                Cam.CFrame = CFrame.new(Cam.CFrame.Position, closest.Position)
-            end
         end
     end)
 end)
