@@ -1,9 +1,8 @@
--- Chainsmokers Hub - Touch & Drag Fixed Version
+-- Chainsmokers Hub - Fixed Silent Error Version
 task.wait(0.5)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 
@@ -19,7 +18,7 @@ ScreenGui.Name = "CS_Hub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- ปุ่มเปิด-ปิดเมนู (เพิ่มระบบรองรับการกดและลากบนมือถือ)
+-- ปุ่มเปิด-ปิดเมนู
 local MainBtn = Instance.new("TextButton")
 MainBtn.Name = "CS_Toggle"
 MainBtn.Size = UDim2.new(0, 48, 0, 48)
@@ -57,9 +56,9 @@ bgGradient.Color = ColorSequence.new({
 })
 bgGradient.Rotation = 45
 
--- ระบบกดเปิด-ปิดหน้าต่างแบบปลอดภัยสำหรับมือถือ
+-- ระบบเปิด-ปิดหน้าต่าง
 local dragging = false
-local dragInput, dragStart, startPos
+local dragStart, startPos
 
 MainBtn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -67,14 +66,11 @@ MainBtn.InputBegan:Connect(function(input)
         dragStart = input.Position
         startPos = MainBtn.Position
         
-        -- ถ้าเป็นการแตะธรรมดา (ไม่ได้ลาก) ให้สลับเปิด-ปิด UI
         local connection
         connection = input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
                 if connection then connection:Disconnect() end
-                
-                -- เช็คว่าเป็นการคลิก/แตะแบบไม่ขยับ (เปิด-ปิดเมนู)
                 if (input.Position - dragStart).Magnitude < 5 then
                     MainFrame.Visible = not MainFrame.Visible
                 end
@@ -83,6 +79,7 @@ MainBtn.InputBegan:Connect(function(input)
     end
 end)
 
+UserInputService = game:GetService("UserInputService")
 UserInputService.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
         local delta = input.Position - dragStart
@@ -371,69 +368,4 @@ RunService.RenderStepped:Connect(function()
                         
                         local txt = Instance.new("TextLabel", bb)
                         txt.Name = "Text"
-                        txt.Size = UDim2.new(1, 0, 1, 0)
-                        txt.BackgroundTransparency = 1
-                        txt.TextColor3 = Color3.fromRGB(255, 255, 255)
-                        txt.TextStrokeTransparency = 0
-                        txt.TextSize = 13
-                    else
-                        val dist = math.floor((hrp.Position - myHRP.Position).Magnitude)
-                        local txt = distanceTag:FindFirstChild("Text")
-                        if txt then
-                            txt.Text = "[" .. dist .. "m]"
-                        end
-                    end
-                else
-                    if distanceTag then distanceTag:Destroy() end
-                end
-
-                local boxTag = char:FindFirstChild("CS_BoxTag")
-                if boxOn then
-                    if not boxTag then
-                        local bb = Instance.new("BillboardGui", char)
-                        bb.Name = "CS_BoxTag"
-                        bb.Size = UDim2.new(4, 0, 5, 0)
-                        bb.StudsOffset = Vector3.new(0, 0.5, 0)
-                        bb.AlwaysOnTop = true
-                        
-                        local frm = Instance.new("Frame", bb)
-                        frm.Size = UDim2.new(1, 0, 1, 0)
-                        frm.BackgroundTransparency = 1
-                        
-                        local stroke = Instance.new("UIStroke", frm)
-                        stroke.Color = Color3.fromRGB(0, 255, 255)
-                        stroke.Thickness = 1.5
-                    end
-                else
-                    if boxTag then boxTag:Destroy() end
-                end
-            end
-        end
-    end
-end)
-
-RunService.RenderStepped:Connect(function()
-    local c = LocalPlayer.Character
-    if not c then return end
-    
-    local humanoid = c:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.WalkSpeed = speedOn and 50 or 16
-    end
-    
-    if noclipOn then
-        for _, v in ipairs(c:GetDescendants()) do
-            if v:IsA("BasePart") and v.CanCollide then
-                v.CanCollide = false
-            end
-        end
-    end
-    
-    if flyOn then
-        local hrp = c:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            hrp.Velocity = Vector3.new(0, 1, 0)
-            hrp.CFrame = hrp.CFrame + (Cam.CFrame.LookVector * 1.2)
-        end
-    end
-end)
+                        txt.Size = UDim2.new(
