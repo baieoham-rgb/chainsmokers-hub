@@ -1,9 +1,8 @@
--- Chainsmokers Hub (Casserus UI Style + Aimbot Added)
+-- Chainsmokers Hub (Casserus UI Style + Aimbot + FOV Circle)
 task.wait(0.5)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 
@@ -18,6 +17,16 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CS_Hub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
+
+-- สร้างวงกลม FOV (ขนาด 60) ตรงกลางจอ
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Visible = false
+FOVCircle.Radius = 60
+FOVCircle.Color = Color3.fromRGB(0, 170, 255)
+FOVCircle.Thickness = 1.5
+FOVCircle.Filled = false
+FOVCircle.Transparency = 0.7
+FOVCircle.Position = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
 
 local MainBtn = Instance.new("TextButton")
 MainBtn.Name = "CS_Toggle"
@@ -86,6 +95,7 @@ Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
+    FOVCircle:Remove()
 end)
 
 local MinimizeBtn = Instance.new("TextButton")
@@ -248,16 +258,19 @@ createToggle(mainTab, 1, "วิ่งเร็ว (Speed)", function() speedOn 
 createToggle(mainTab, 2, "ทะลุกำแพง (Noclip)", function() noclipOn = not noclipOn return noclipOn end)
 createToggle(mainTab, 3, "บิน (Fly)", function() flyOn = not flyOn return flyOn end)
 
-createToggle(combatTab, 1, "ล็อกเป้า (Aimbot)", function() aimbotOn = not aimbotOn return aimbotOn end)
+createToggle(combatTab, 1, "ล็อกเป้า (Aimbot)", function() 
+    aimbotOn = not aimbotOn 
+    FOVCircle.Visible = aimbotOn
+    return aimbotOn 
+end)
 
 createToggle(espTab, 1, "มองตัวละคร (ESP)", function() espOn = not espOn return espOn end)
 createToggle(espTab, 2, "ระยะตัวละคร (Distance)", function() distOn = not distOn return distOn end)
 createToggle(espTab, 3, "กล่อง ESP (Box)", function() boxOn = not boxOn return boxOn end)
 
--- ฟังก์ชันหาตัวละครที่ใกล้ที่สุดสำหรับ Aimbot
 local function getClosestPlayer()
     local target = nil
-    local shortestDist = math.huge
+    local shortestDist = 60 -- รัศมี FOV
     
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and plr.Character then
@@ -265,10 +278,12 @@ local function getClosestPlayer()
             local hum = plr.Character:FindFirstChildOfClass("Humanoid")
             if hrp and hum and hum.Health > 0 then
                 local pos, onScreen = Cam:WorldToViewportPoint(hrp.Position)
-                local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X/2, Cam.ViewportSize.Y/2)).Magnitude
-                if dist < shortestDist then
-                    shortestDist = dist
-                    target = hrp
+                if onScreen then
+                    local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X/2, Cam.ViewportSize.Y/2)).Magnitude
+                    if dist < shortestDist then
+                        shortestDist = dist
+                        target = hrp
+                    end
                 end
             end
         end
@@ -277,6 +292,8 @@ local function getClosestPlayer()
 end
 
 RunService.RenderStepped:Connect(function()
+    FOVCircle.Position = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
+
     if aimbotOn then
         local targetHRP = getClosestPlayer()
         if targetHRP then
